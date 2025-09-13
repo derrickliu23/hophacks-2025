@@ -15,32 +15,13 @@ export default async function Dashboard() {
 
   if (!profile?.role) redirect('/role')
 
-  const signOut = async () => {
-    'use server'
-    const supabase = await createClient()
-    await supabase.auth.signOut()
-    redirect('/login')
-  }
-
+  // Redirect to role-specific dashboard
   if (profile.role === 'candidate') {
-    return (
-      <div className="p-8">
-        <h1 className="text-2xl mb-4">Candidate Dashboard</h1>
-        <p>Welcome! You can browse jobs here.</p>
-        <form action={signOut}>
-          <button className="bg-red-500 text-white px-4 py-2 mt-4">Sign Out</button>
-        </form>
-      </div>
-    )
+    redirect('/candidate-dashboard')
+  } else if (profile.role === 'recruiter') {
+    redirect('/recruiter-dashboard')
   }
 
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl mb-4">Recruiter Dashboard</h1>
-      <p>Welcome! You can post jobs here.</p>
-      <form action={signOut}>
-        <button className="bg-red-500 text-white px-4 py-2 mt-4">Sign Out</button>
-      </form>
-    </div>
-  )
+  // Fallback (shouldn't reach here with valid roles)
+  redirect('/role')
 }
