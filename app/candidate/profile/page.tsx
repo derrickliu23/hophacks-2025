@@ -43,7 +43,7 @@ export default function CandidateProfile() {
 
     if (error) {
       console.error('Error fetching profile:', error);
-      router.push('/candidate-dashboard');
+      router.push('/candidate');
       return;
     }
 
@@ -176,83 +176,92 @@ export default function CandidateProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen relative overflow-hidden font-sans text-white">
-        <div
-          className="absolute inset-0 bg-cover bg-center filter brightness-75"
-          style={{ backgroundImage: "url('/hero-tech-city.jpg')" }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
-        <div className="relative z-10 p-12">
-          <p className="text-2xl font-mono text-white">Loading profile...</p>
+      <div className="flex items-center justify-center py-24">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl text-gray-300">Loading elite profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden font-sans text-white">
-      {/* Hero Image / Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center filter brightness-75"
-        style={{ backgroundImage: "url('/hero-tech-city.jpg')" }}
-      ></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+          Elite Profile
+        </h1>
+        <p className="text-xl text-gray-300 font-light">
+          Craft your professional digital presence
+        </p>
+      </div>
 
-      <div className="relative z-10 p-12 max-w-3xl mx-auto">
-        <a
-          href="/candidate-dashboard"
-          className="mb-8 inline-block px-4 py-2 rounded-xl bg-black/50 text-white font-mono shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300"
-        >
-          ← Back
-        </a>
+      {/* Profile Container */}
+      <div className="relative bg-black/60 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl">
+        {/* Glow Effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-green-600/20 via-blue-600/20 to-purple-600/20 rounded-3xl blur-xl" />
+        
+        <div className="relative p-8">
+          <div className="bg-black/90 rounded-2xl p-8 font-mono border border-green-400/30">
+            <div className="flex items-center mb-6">
+              <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+              <h2 className="text-2xl text-green-400 font-bold">./profile_editor</h2>
+              <div className="ml-auto text-green-300 text-sm">SECURE CONNECTION</div>
+            </div>
 
-        <div className="bg-black/60 backdrop-blur-lg border border-gray-700 rounded-3xl p-10 shadow-2xl">
-          <h1 className="text-5xl font-serif font-extrabold mb-6 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-400">
-            Edit Profile
-          </h1>
-
-          <div className="space-y-6">
             {/* Profile Picture Upload */}
-            <div className="border border-gray-600 p-4 rounded-xl flex items-center space-x-4">
-              {previewUrl ? (
-                <img 
-                  src={previewUrl} 
-                  alt="Profile preview" 
-                  className="w-20 h-20 rounded-full border border-indigo-400 object-cover"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full border border-indigo-400 flex items-center justify-center">
-                  <span className="text-xs text-gray-400">NO IMG</span>
-                </div>
-              )}
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="text-xs text-gray-300 file:bg-black/50 file:border file:border-indigo-400 file:text-indigo-400 file:px-2 file:py-1 file:text-xs"
-                />
-                {selectedFile && (
-                  <p className="text-xs text-gray-300 mt-1 truncate max-w-xs">
-                    Selected: {selectedFile.name}
-                  </p>
+            <div className="border border-green-400/50 p-6 rounded-lg mb-6 bg-green-400/5">
+              <label className="block mb-3 text-green-400 font-semibold text-sm">AVATAR_CONFIG</label>
+              <div className="flex items-center space-x-6">
+                {previewUrl ? (
+                  <img 
+                    src={previewUrl} 
+                    alt="Profile preview" 
+                    className="w-20 h-20 rounded-lg border-2 border-green-400 object-cover shadow-lg shadow-green-400/25"
+                  />
+                ) : (
+                  <div className="w-20 h-20 border-2 border-green-400/50 flex items-center justify-center rounded-lg bg-green-400/10">
+                    <span className="text-xs text-green-300">NO_IMG</span>
+                  </div>
                 )}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="text-sm text-green-300 file:bg-green-900/50 file:border file:border-green-400 file:text-green-400 file:px-3 file:py-2 file:text-sm file:rounded file:font-mono"
+                  />
+                  {selectedFile && (
+                    <p className="text-sm text-green-300 mt-2 flex items-center">
+                      <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Profile Fields */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {Object.entries(profile).map(([key, value]) => {
                 if (key === 'avatar_url') return null; // Skip avatar_url since we handle it above
+                const fieldName = key.replace("_", " ").toUpperCase();
                 return (
-                  <div key={key}>
-                    <label className="block mb-1 capitalize text-gray-300">{key.replace("_", " ")}</label>
-                    <input
-                      type="text"
-                      value={value as string}
-                      onChange={(e) => handleInputChange(key, e.target.value)}
-                      className="w-full bg-black/40 border border-indigo-400 p-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-xl transition-all"
-                    />
+                  <div key={key} className="space-y-2">
+                    <label className="block text-sm font-semibold text-green-400">
+                      {fieldName}:
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-green-400 text-sm">$</span>
+                      <input
+                        type="text"
+                        value={value as string}
+                        onChange={(e) => handleInputChange(key, e.target.value)}
+                        className="w-full bg-black/80 border border-green-400/50 p-3 pl-8 text-green-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-400 rounded font-mono transition-all duration-300"
+                        placeholder={`Enter ${fieldName.toLowerCase()}...`}
+                      />
+                    </div>
                   </div>
                 );
               })}
@@ -261,9 +270,9 @@ export default function CandidateProfile() {
             <button
               onClick={updateProfile}
               disabled={saving || uploading}
-              className="mt-4 w-full px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-2xl hover:shadow-indigo-400/50 transform hover:scale-105 transition-all duration-300"
+              className="mt-8 w-full px-6 py-3 border-2 border-green-400 hover:bg-green-900/50 disabled:opacity-50 disabled:cursor-not-allowed text-green-400 font-bold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-400/25"
             >
-              {uploading ? './uploading-image...' : saving ? './updating-profile...' : './update-profile'}
+              {uploading ? './uploading-image...' : saving ? './updating-profile...' : './update-profile --save'}
             </button>
           </div>
         </div>

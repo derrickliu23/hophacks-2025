@@ -17,7 +17,7 @@ export default async function Dashboard() {
 
   // Redirect to role-specific dashboard
   if (profile.role === 'candidate') {
-    redirect('/candidate-dashboard')
+    redirect('/candidate')
   } else if (profile.role === 'recruiter') {
     redirect('/recruiter')
   }
