@@ -12,14 +12,11 @@ export default function RecruiterProfile() {
     last_name: '',
     headline: '',
     linkedin: '',
-    avatar_url: '',
-    // Recruiter-specific fields (we'll store these in existing columns creatively)
-    company_name: '', // We can use headline for company info
-    job_title: '',    // We can use a structured format
-    company_website: '',
-    company_description: '',
-    phone: ''
+    avatar_url: ''
   })
+  const [uploading, setUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string>('')
   
   const supabase = createClient()
   const router = useRouter()
@@ -58,24 +55,18 @@ export default function RecruiterProfile() {
       console.error('Error loading profile:', error)
       alert('Error loading profile: ' + error.message)
     } else if (data) {
-      // Parse structured data from existing fields
-      const headlineParts = (data.headline || '').split(' | ')
-      const companyName = headlineParts[0] || ''
-      const jobTitle = headlineParts[1] || ''
-      const companyDescription = headlineParts[2] || ''
-
       setProfile({
         first_name: data.first_name || '',
         last_name: data.last_name || '',
         headline: data.headline || '',
         linkedin: data.linkedin || '',
-        avatar_url: data.avatar_url || '',
-        company_name: companyName,
-        job_title: jobTitle,
-        company_website: data.resume_url || '', // Repurpose resume_url for company website
-        company_description: companyDescription,
-        phone: '' // We'll add this to headline if needed
+        avatar_url: data.avatar_url || ''
       })
+      
+      // Set preview URL if avatar exists
+      if (data.avatar_url) {
+        setPreviewUrl(data.avatar_url)
+      }
     }
     
     setLoading(false)
@@ -86,6 +77,58 @@ export default function RecruiterProfile() {
       ...prev,
       [field]: value
     }))
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPreviewUrl(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const uploadProfilePicture = async (): Promise<string | null> => {
+    if (!selectedFile) return null
+
+    setUploading(true)
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
+      // Create unique filename
+      const fileExt = selectedFile.name.split('.').pop()
+      const fileName = `${user.id}/profile-${Date.now()}.${fileExt}`
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('user_data')
+        .upload(fileName, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (error) throw error
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('user_data')
+        .getPublicUrl(data.path)
+
+      return publicUrl
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('Error uploading image: ' + (error as Error).message)
+      return null
+    } finally {
+      setUploading(false)
+    }
   }
 
   const saveProfile = async () => {
@@ -99,32 +142,47 @@ export default function RecruiterProfile() {
       return
     }
 
-    // Structure the data for storage
-    const structuredHeadline = [
-      profile.company_name,
-      profile.job_title,
-      profile.company_description
-    ].filter(Boolean).join(' | ')
+    try {
+      // Upload image first if a new file is selected
+      let avatarUrl = profile.avatar_url
+      if (selectedFile) {
+        const uploadedUrl = await uploadProfilePicture()
+        if (uploadedUrl) {
+          avatarUrl = uploadedUrl
+        } else {
+          // Upload failed, don't continue
+          setSaving(false)
+          return
+        }
+      }
 
-    const updateData = {
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      headline: structuredHeadline,
-      linkedin: profile.linkedin,
-      avatar_url: profile.avatar_url,
-      resume_url: profile.company_website // Repurpose for company website
-    }
+      // Update profile data
+      const updateData = {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        headline: profile.headline,
+        linkedin: profile.linkedin,
+        avatar_url: avatarUrl
+      }
 
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update(updateData)
-      .eq('id', user.id)
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updateData)
+        .eq('id', user.id)
 
-    if (error) {
-      console.error('Error updating profile:', error)
-      alert('Error updating profile: ' + error.message)
-    } else {
-      alert('Recruiter profile updated successfully!')
+      if (error) {
+        console.error('Error updating profile:', error)
+        alert('Error updating profile: ' + error.message)
+      } else {
+        alert('Recruiter profile updated successfully!')
+        
+        // Update local state and clear selected file
+        setProfile(prev => ({ ...prev, avatar_url: avatarUrl }))
+        setSelectedFile(null)
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Error saving profile: ' + (error as Error).message)
     }
     
     setSaving(false)
@@ -155,8 +213,50 @@ export default function RecruiterProfile() {
 
         <div className="bg-white shadow-md rounded-lg p-6">
           <div className="space-y-6">
+            {/* Profile Picture Section */}
+            <div className="border-b pb-6">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">Profile Picture</h2>
+              <div className="flex items-center space-x-6">
+                {/* Current/Preview Image */}
+                <div className="flex-shrink-0">
+                  {previewUrl ? (
+                    <img 
+                      src={previewUrl} 
+                      alt="Profile preview" 
+                      className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500 text-sm">No Image</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-grow">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Profile Picture
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Recommended: Square image, at least 200x200px. Max size: 5MB.
+                  </p>
+                  {selectedFile && (
+                    <p className="text-sm text-green-600 mt-2">
+                      ✓ Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Personal Information Section */}
-            <div className="border-b pb-4">
+            <div>
               <h2 className="text-xl font-semibold mb-4 text-gray-800">Personal Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -187,14 +287,14 @@ export default function RecruiterProfile() {
 
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Title
+                  Professional Headline
                 </label>
                 <input
                   type="text"
-                  value={profile.job_title}
-                  onChange={(e) => handleInputChange('job_title', e.target.value)}
+                  value={profile.headline}
+                  onChange={(e) => handleInputChange('headline', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., Senior Technical Recruiter, Talent Acquisition Manager"
+                  placeholder="e.g., Senior Technical Recruiter at Tech Corp"
                 />
               </div>
 
@@ -210,75 +310,6 @@ export default function RecruiterProfile() {
                   placeholder="https://linkedin.com/in/yourprofile"
                 />
               </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Profile Picture URL
-                </label>
-                <input
-                  type="url"
-                  value={profile.avatar_url}
-                  onChange={(e) => handleInputChange('avatar_url', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://... link to your profile picture"
-                />
-                {profile.avatar_url && (
-                  <div className="mt-2">
-                    <img 
-                      src={profile.avatar_url} 
-                      alt="Profile preview" 
-                      className="w-16 h-16 rounded-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Company Information Section */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Company Information</h2>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  value={profile.company_name}
-                  onChange={(e) => handleInputChange('company_name', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter your company name"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Website
-                </label>
-                <input
-                  type="url"
-                  value={profile.company_website}
-                  onChange={(e) => handleInputChange('company_website', e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://yourcompany.com"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Description
-                </label>
-                <textarea
-                  value={profile.company_description}
-                  onChange={(e) => handleInputChange('company_description', e.target.value)}
-                  rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Brief description of your company, industry, and culture..."
-                />
-              </div>
             </div>
           </div>
 
@@ -286,10 +317,10 @@ export default function RecruiterProfile() {
           <div className="mt-8">
             <button
               onClick={saveProfile}
-              disabled={saving}
+              disabled={saving || uploading}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
             >
-              {saving ? 'Saving...' : 'Save Recruiter Profile'}
+              {uploading ? 'Uploading Image...' : saving ? 'Saving Profile...' : 'Save Recruiter Profile'}
             </button>
           </div>
         </div>
