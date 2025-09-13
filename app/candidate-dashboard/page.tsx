@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 export default async function CandidateDashboard() {
   const supabase = await createClient()
@@ -24,72 +25,74 @@ export default async function CandidateDashboard() {
   }
 
   return (
-    <div className="p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Candidate Dashboard</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div className="min-h-screen bg-black text-green-400 p-8 font-mono">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-4xl font-bold mb-10 text-center tracking-widest animate-pulse">
+          $ Candidate_Dashboard
+        </h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Profile Management */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-3">Profile</h2>
-            <p className="text-gray-600 mb-4">Manage your professional profile and information</p>
-            <a 
-              href="/profile"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block"
+          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
+            <h2 className="text-xl font-semibold mb-3"> Profile</h2>
+            <p className="text-green-300 mb-4">Manage your professional profile and information</p>
+            <Link 
+              href="/candidate-profile"
+              className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all"
             >
-              Edit Profile
-            </a>
+              ./edit_profile
+            </Link>
           </div>
 
           {/* Job Search */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-3">Job Search</h2>
-            <p className="text-gray-600 mb-4">Browse and apply to available positions</p>
-            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-              Browse Jobs
+          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
+            <h2 className="text-xl font-semibold mb-3"> Job_Search</h2>
+            <p className="text-green-300 mb-4">Browse and apply to available positions</p>
+            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
+              ./browse_jobs
             </button>
           </div>
 
           {/* Applications */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-3">My Applications</h2>
-            <p className="text-gray-600 mb-4">Track your job application status</p>
-            <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-              View Applications
+          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
+            <h2 className="text-xl font-semibold mb-3"> Applications</h2>
+            <p className="text-green-300 mb-4">Track your job application status</p>
+            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
+              ./view_applications
             </button>
           </div>
 
           {/* Resume Builder */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-3">Resume</h2>
-            <p className="text-gray-600 mb-4">Build and update your resume</p>
-            <button className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">
-              Edit Resume
+          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
+            <h2 className="text-xl font-semibold mb-3"> Resume</h2>
+            <p className="text-green-300 mb-4">Build and update your resume</p>
+            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
+              ./edit_resume
             </button>
           </div>
 
           {/* Saved Jobs */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-3">Saved Jobs</h2>
-            <p className="text-gray-600 mb-4">View jobs you've bookmarked</p>
-            <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-              View Saved
+          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
+            <h2 className="text-xl font-semibold mb-3"> Saved_Jobs</h2>
+            <p className="text-green-300 mb-4">View jobs you've bookmarked</p>
+            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
+              ./view_saved
             </button>
           </div>
 
           {/* Messages */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-3">Messages</h2>
-            <p className="text-gray-600 mb-4">Communicate with recruiters</p>
-            <button className="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">
-              View Messages
+          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
+            <h2 className="text-xl font-semibold mb-3"> Messages</h2>
+            <p className="text-green-300 mb-4">Communicate with recruiters</p>
+            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
+              ./view_messages
             </button>
           </div>
         </div>
 
-        <form action={signOut}>
-          <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-            Sign Out
+        <form action={signOut} className="text-center">
+          <button className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-500 transition-all">
+            ./sign_out
           </button>
         </form>
       </div>
