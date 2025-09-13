@@ -1,101 +1,93 @@
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+
+function DashboardButton({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-2xl hover:shadow-indigo-400/50 transform hover:scale-105 transition-all duration-300"
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default async function CandidateDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) redirect('/login')
+  if (!user) redirect("/login");
 
   const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+    .from("user_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
 
-  if (!profile?.role) redirect('/role')
-  if (profile.role !== 'candidate') redirect('/recruiter-dashboard')
+  if (!profile?.role) redirect("/role");
+  if (profile.role !== "candidate") redirect("/recruiter-dashboard");
 
   const signOut = async () => {
-    'use server'
-    const supabase = await createClient()
-    await supabase.auth.signOut()
-    redirect('/login')
-  }
+    "use server";
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/login");
+  };
+
+  const cards = [
+    { title: "Profile", desc: "Manage your elite profile", href: "/candidate-profile" },
+    { title: "Job Search", desc: "Seek unparalleled opportunities", href: "#" },
+    { title: "Applications", desc: "Monitor your strategic pursuits", href: "#" },
+    { title: "Resume", desc: "Curate and refine your dossier", href: "#" },
+    { title: "Saved Jobs", desc: "Track your chosen quests", href: "#" },
+    { title: "Messages", desc: "Communicate with distinguished recruiters", href: "#" },
+  ];
 
   return (
-    <div className="min-h-screen bg-black text-green-400 p-8 font-mono">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-bold mb-10 text-center tracking-widest animate-pulse">
-          $ Candidate_Dashboard
-        </h1>
+    <div className="min-h-screen relative overflow-hidden font-sans text-white">
+      {/* Hero Image / Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center filter brightness-75"
+        style={{ backgroundImage: "url('/hero-tech-city.jpg')" }}
+      ></div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {/* Profile Management */}
-          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
-            <h2 className="text-xl font-semibold mb-3"> Profile</h2>
-            <p className="text-green-300 mb-4">Manage your professional profile and information</p>
-            <Link 
-              href="/candidate-profile"
-              className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all"
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
+
+      <div className="relative z-10 p-12 max-w-7xl mx-auto">
+        <header className="mb-20 text-center">
+          <h1 className="text-6xl lg:text-8xl font-serif font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-400">
+            Candidate Dashboard
+          </h1>
+          <p className="mt-4 text-xl text-gray-300 italic">
+            Navigate the realms of ambition, intellect, and prestige.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          {cards.map((card) => (
+            <div
+              key={card.title}
+              className="relative bg-black/60 backdrop-blur-lg border border-gray-700 rounded-3xl p-8 shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:-translate-y-2"
             >
-              ./edit_profile
-            </Link>
-          </div>
-
-          {/* Job Search */}
-          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
-            <h2 className="text-xl font-semibold mb-3"> Job_Search</h2>
-            <p className="text-green-300 mb-4">Browse and apply to available positions</p>
-            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
-              ./browse_jobs
-            </button>
-          </div>
-
-          {/* Applications */}
-          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
-            <h2 className="text-xl font-semibold mb-3"> Applications</h2>
-            <p className="text-green-300 mb-4">Track your job application status</p>
-            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
-              ./view_applications
-            </button>
-          </div>
-
-          {/* Resume Builder */}
-          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
-            <h2 className="text-xl font-semibold mb-3"> Resume</h2>
-            <p className="text-green-300 mb-4">Build and update your resume</p>
-            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
-              ./edit_resume
-            </button>
-          </div>
-
-          {/* Saved Jobs */}
-          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
-            <h2 className="text-xl font-semibold mb-3"> Saved_Jobs</h2>
-            <p className="text-green-300 mb-4">View jobs you've bookmarked</p>
-            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
-              ./view_saved
-            </button>
-          </div>
-
-          {/* Messages */}
-          <div className="bg-zinc-950 shadow-inner rounded-lg p-6 border border-green-700 hover:border-green-400 transition-all">
-            <h2 className="text-xl font-semibold mb-3"> Messages</h2>
-            <p className="text-green-300 mb-4">Communicate with recruiters</p>
-            <button className="bg-green-700 text-black px-4 py-2 rounded hover:bg-green-500 transition-all">
-              ./view_messages
-            </button>
-          </div>
+              <h2 className="text-3xl font-bold mb-3 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
+                {card.title}
+              </h2>
+              <p className="text-gray-300 mb-6">{card.desc}</p>
+              <DashboardButton href={card.href}>{`./${card.title.replace(" ", "-").toLowerCase()}`}</DashboardButton>
+            </div>
+          ))}
         </div>
 
-        <form action={signOut} className="text-center">
-          <button className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-500 transition-all">
-            ./sign_out
-          </button>
-        </form>
+        <div className="mt-20 text-center">
+          <form action={signOut}>
+            <button className="px-8 py-4 bg-red-600 rounded-2xl font-bold text-white shadow-xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-300">
+              Sign Out
+            </button>
+          </form>
+        </div>
       </div>
     </div>
-  )
+  );
 }

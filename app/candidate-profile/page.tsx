@@ -176,80 +176,97 @@ export default function CandidateProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-green-400 p-8 font-mono">
-        <p>Loading profile...</p>
+      <div className="min-h-screen relative overflow-hidden font-sans text-white">
+        <div
+          className="absolute inset-0 bg-cover bg-center filter brightness-75"
+          style={{ backgroundImage: "url('/hero-tech-city.jpg')" }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
+        <div className="relative z-10 p-12">
+          <p className="text-2xl font-mono text-white">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-green-400 p-8 font-mono">
-      <a
-        href="/candidate-dashboard"
-        className="mb-4 inline-block text-sm border border-green-400 px-2 py-1 hover:bg-green-900"
-      >
-        ← Back
-      </a>
+    <div className="min-h-screen relative overflow-hidden font-sans text-white">
+      {/* Hero Image / Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center filter brightness-75"
+        style={{ backgroundImage: "url('/hero-tech-city.jpg')" }}
+      ></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"></div>
 
-      <h1 className="text-3xl mb-6">Edit Profile</h1>
+      <div className="relative z-10 p-12 max-w-3xl mx-auto">
+        <a
+          href="/candidate-dashboard"
+          className="mb-8 inline-block px-4 py-2 rounded-xl bg-black/50 text-white font-mono shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300"
+        >
+          ← Back
+        </a>
 
-      <div className="space-y-6 max-w-lg">
-        {/* Profile Picture Upload */}
-        <div className="border border-green-400 p-4">
-          <label className="block mb-2 text-green-400">Profile Picture</label>
-          <div className="flex items-center space-x-4 mb-4">
-            {previewUrl ? (
-              <img 
-                src={previewUrl} 
-                alt="Profile preview" 
-                className="w-16 h-16 rounded border border-green-400 object-cover"
-              />
-            ) : (
-              <div className="w-16 h-16 border border-green-400 flex items-center justify-center">
-                <span className="text-xs">NO IMG</span>
-              </div>
-            )}
-            <div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="text-xs text-green-300 file:bg-black file:border file:border-green-400 file:text-green-400 file:px-2 file:py-1 file:text-xs"
-              />
-              {selectedFile && (
-                <p className="text-xs text-green-300 mt-1">
-                  Selected: {selectedFile.name}
-                </p>
+        <div className="bg-black/60 backdrop-blur-lg border border-gray-700 rounded-3xl p-10 shadow-2xl">
+          <h1 className="text-5xl font-serif font-extrabold mb-6 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-400">
+            Edit Profile
+          </h1>
+
+          <div className="space-y-6">
+            {/* Profile Picture Upload */}
+            <div className="border border-gray-600 p-4 rounded-xl flex items-center space-x-4">
+              {previewUrl ? (
+                <img 
+                  src={previewUrl} 
+                  alt="Profile preview" 
+                  className="w-20 h-20 rounded-full border border-indigo-400 object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full border border-indigo-400 flex items-center justify-center">
+                  <span className="text-xs text-gray-400">NO IMG</span>
+                </div>
               )}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="text-xs text-gray-300 file:bg-black/50 file:border file:border-indigo-400 file:text-indigo-400 file:px-2 file:py-1 file:text-xs"
+                />
+                {selectedFile && (
+                  <p className="text-xs text-gray-300 mt-1 truncate max-w-xs">
+                    Selected: {selectedFile.name}
+                  </p>
+                )}
+              </div>
             </div>
+
+            {/* Profile Fields */}
+            <div className="space-y-4">
+              {Object.entries(profile).map(([key, value]) => {
+                if (key === 'avatar_url') return null; // Skip avatar_url since we handle it above
+                return (
+                  <div key={key}>
+                    <label className="block mb-1 capitalize text-gray-300">{key.replace("_", " ")}</label>
+                    <input
+                      type="text"
+                      value={value as string}
+                      onChange={(e) => handleInputChange(key, e.target.value)}
+                      className="w-full bg-black/40 border border-indigo-400 p-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-xl transition-all"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={updateProfile}
+              disabled={saving || uploading}
+              className="mt-4 w-full px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-2xl hover:shadow-indigo-400/50 transform hover:scale-105 transition-all duration-300"
+            >
+              {uploading ? './uploading-image...' : saving ? './updating-profile...' : './update-profile'}
+            </button>
           </div>
         </div>
-
-        {/* Profile Fields */}
-        <div className="space-y-4">
-          {Object.entries(profile).map(([key, value]) => {
-            if (key === 'avatar_url') return null; // Skip avatar_url since we handle it above
-            return (
-              <div key={key}>
-                <label className="block mb-1 capitalize">{key.replace("_", " ")}</label>
-                <input
-                  type="text"
-                  value={value as string}
-                  onChange={(e) => handleInputChange(key, e.target.value)}
-                  className="w-full bg-black border border-green-400 p-2 text-green-300 focus:outline-none focus:ring-1 focus:ring-green-500"
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <button
-          onClick={updateProfile}
-          disabled={saving || uploading}
-          className="mt-4 px-4 py-2 border border-green-400 hover:bg-green-900 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {uploading ? './uploading-image...' : saving ? './updating-profile...' : './update-profile'}
-        </button>
       </div>
     </div>
   );
