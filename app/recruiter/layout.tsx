@@ -51,13 +51,13 @@ export default function RecruiterLayout({
   }
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/recruiter' },
-    { id: 'profile', label: 'Profile', icon: '👤', path: '/recruiter/profile' },
-    { id: 'jobs', label: 'Job Postings', icon: '💼', path: '/recruiter/jobs' },
-    { id: 'candidates', label: 'Candidates', icon: '👥', path: '/recruiter/candidates' },
-    { id: 'company', label: 'Company', icon: '🏢', path: '/recruiter/company' },
-    { id: 'analytics', label: 'Analytics', icon: '📊', path: '/recruiter/analytics' },
-    { id: 'messages', label: 'Messages', icon: '💬', path: '/recruiter/messages' }
+    { id: 'dashboard', label: 'Dashboard', path: '/recruiter' },
+    { id: 'profile', label: 'Profile', path: '/recruiter/profile' },
+    { id: 'jobs', label: 'Job Postings', path: '/recruiter/jobs' },
+    { id: 'candidates', label: 'Candidates', path: '/recruiter/candidates' },
+    { id: 'company', label: 'Company', path: '/recruiter/company' },
+    { id: 'analytics', label: 'Analytics', path: '/recruiter/analytics' },
+    { id: 'messages', label: 'Messages', path: '/recruiter/messages' }
   ]
 
   const isActive = (path: string) => {
@@ -102,7 +102,6 @@ export default function RecruiterLayout({
                         : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <span className="mr-1">{tab.icon}</span>
                     {tab.label}
                   </button>
                 ))}

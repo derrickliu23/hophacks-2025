@@ -55,6 +55,7 @@ export default function CandidateLayout({
     { id: 'profile', label: 'Profile', icon: '👤', path: '/candidate/profile' },
     { id: 'jobs', label: 'Job Search', icon: '🔍', path: '/candidate/jobs' },
     { id: 'applications', label: 'Applications', icon: '📋', path: '/candidate/applications' },
+    { id: 'exams', label: 'Coding Exams', icon: '💻', path: '/candidate/exams' },
     { id: 'resume', label: 'Resume', icon: '📄', path: '/candidate/resume' },
     { id: 'saved', label: 'Saved Jobs', icon: '⭐', path: '/candidate/saved' },
     { id: 'messages', label: 'Messages', icon: '💬', path: '/candidate/messages' }
