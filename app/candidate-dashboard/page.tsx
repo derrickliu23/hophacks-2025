@@ -38,7 +38,7 @@ export default async function CandidateDashboard() {
   const cards = [
     { title: "Profile", desc: "Manage your elite profile", href: "/candidate-profile" },
     { title: "Job Search", desc: "Seek unparalleled opportunities", href: "#" },
-    { title: "Applications", desc: "Monitor your strategic pursuits", href: "#" },
+    { title: "Applications", desc: "Monitor your strategic pursuits", href: "/candidate-application" },
     { title: "Resume", desc: "Curate and refine your dossier", href: "#" },
     { title: "Saved Jobs", desc: "Track your chosen quests", href: "#" },
     { title: "Messages", desc: "Communicate with distinguished recruiters", href: "#" },
