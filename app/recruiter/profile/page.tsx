@@ -33,18 +33,6 @@ export default function RecruiterProfile() {
       return
     }
 
-    // Check if user is a recruiter
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (userProfile?.role !== 'recruiter') {
-      router.push('/dashboard')
-      return
-    }
-
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
@@ -190,139 +178,130 @@ export default function RecruiterProfile() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="max-w-2xl mx-auto">
-          <p>Loading recruiter profile...</p>
-        </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="text-xl text-gray-600">Loading profile...</div>
       </div>
     )
   }
 
   return (
-    <div className="p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Recruiter Profile</h1>
-          <button 
-            onClick={() => router.push('/recruiter-dashboard')}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Back to Dashboard
-          </button>
-        </div>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Recruiter Profile</h1>
+        <p className="text-gray-600">Manage your professional information</p>
+      </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <div className="space-y-6">
-            {/* Profile Picture Section */}
-            <div className="border-b pb-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Profile Picture</h2>
-              <div className="flex items-center space-x-6">
-                {/* Current/Preview Image */}
-                <div className="flex-shrink-0">
-                  {previewUrl ? (
-                    <img 
-                      src={previewUrl} 
-                      alt="Profile preview" 
-                      className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">No Image</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Upload Controls */}
-                <div className="flex-grow">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Profile Picture
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="space-y-6">
+          {/* Profile Picture Section */}
+          <div className="border-b pb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Profile Picture</h2>
+            <div className="flex items-center space-x-6">
+              {/* Current/Preview Image */}
+              <div className="flex-shrink-0">
+                {previewUrl ? (
+                  <img 
+                    src={previewUrl} 
+                    alt="Profile preview" 
+                    className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Recommended: Square image, at least 200x200px. Max size: 5MB.
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">No Image</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload Controls */}
+              <div className="flex-grow">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Upload Profile Picture
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Recommended: Square image, at least 200x200px. Max size: 5MB.
+                </p>
+                {selectedFile && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✓ Selected: {selectedFile.name}
                   </p>
-                  {selectedFile && (
-                    <p className="text-sm text-green-600 mt-2">
-                      ✓ Selected: {selectedFile.name}
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
             </div>
+          </div>
 
-            {/* Personal Information Section */}
-            <div>
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Personal Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.first_name}
-                    onChange={(e) => handleInputChange('first_name', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your first name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.last_name}
-                    onChange={(e) => handleInputChange('last_name', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your last name"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-4">
+          {/* Personal Information Section */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Personal Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Professional Headline
+                  First Name
                 </label>
                 <input
                   type="text"
-                  value={profile.headline}
-                  onChange={(e) => handleInputChange('headline', e.target.value)}
+                  value={profile.first_name}
+                  onChange={(e) => handleInputChange('first_name', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., Senior Technical Recruiter at Tech Corp"
+                  placeholder="Enter your first name"
                 />
               </div>
-
-              <div className="mt-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  LinkedIn Profile
+                  Last Name
                 </label>
                 <input
-                  type="url"
-                  value={profile.linkedin}
-                  onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                  type="text"
+                  value={profile.last_name}
+                  onChange={(e) => handleInputChange('last_name', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="https://linkedin.com/in/yourprofile"
+                  placeholder="Enter your last name"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Save Button */}
-          <div className="mt-8">
-            <button
-              onClick={saveProfile}
-              disabled={saving || uploading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
-            >
-              {uploading ? 'Uploading Image...' : saving ? 'Saving Profile...' : 'Save Recruiter Profile'}
-            </button>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Professional Headline
+              </label>
+              <input
+                type="text"
+                value={profile.headline}
+                onChange={(e) => handleInputChange('headline', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Senior Technical Recruiter at Tech Corp"
+              />
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                LinkedIn Profile
+              </label>
+              <input
+                type="url"
+                value={profile.linkedin}
+                onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="https://linkedin.com/in/yourprofile"
+              />
+            </div>
           </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="mt-8">
+          <button
+            onClick={saveProfile}
+            disabled={saving || uploading}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+          >
+            {uploading ? 'Uploading Image...' : saving ? 'Saving Profile...' : 'Save Recruiter Profile'}
+          </button>
         </div>
       </div>
     </div>

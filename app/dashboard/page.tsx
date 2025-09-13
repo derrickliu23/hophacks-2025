@@ -19,7 +19,7 @@ export default async function Dashboard() {
   if (profile.role === 'candidate') {
     redirect('/candidate-dashboard')
   } else if (profile.role === 'recruiter') {
-    redirect('/recruiter-dashboard')
+    redirect('/recruiter')
   }
 
   // Fallback (shouldn't reach here with valid roles)
