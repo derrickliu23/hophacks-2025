@@ -84,7 +84,7 @@ export default function RecruiterLayout({
           <div className="flex justify-between items-center h-16">
             {/* EleetCode Branding */}
             <div className="flex items-center">
-              <Image src="/globe.svg" alt="EleetCode Logo" width={28} height={28} priority className="mr-3" />
+              <Image src="/final_logo.png" alt="EleetCode Logo" width={35} height={35} priority className="mr-3" />
               <h1 className="text-2xl font-bold text-blue-600">EleetCode</h1>
               <span className="ml-3 text-gray-400">|</span>
               <span className="ml-3 text-gray-600">Recruiter Dashboard</span>
