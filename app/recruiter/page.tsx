@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 function TypewriterHeader() {
-  const phrases = ['Elite Talent Hub', 'Excellence Awaits']
+  const phrases = ['Talent Communities', 'Excellence Awaits']
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [text, setText] = useState('')
   const [phase, setPhase] = useState<'typing' | 'deleting' | 'done'>('typing')

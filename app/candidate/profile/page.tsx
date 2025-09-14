@@ -13,6 +13,7 @@ export default function CandidateProfile() {
     first_name: '',
     last_name: '',
     headline: '',
+    school: '',
     resume_url: '',
     avatar_url: '',
     linkedin: '',
@@ -63,7 +64,7 @@ export default function CandidateProfile() {
 
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('first_name, last_name, headline, resume_url, avatar_url, linkedin, email')
+      .select('first_name, last_name, headline, school, resume_url, avatar_url, linkedin, email')
       .eq('id', user.id)
       .single();
 
@@ -74,6 +75,7 @@ export default function CandidateProfile() {
         first_name: data.first_name || '',
         last_name: data.last_name || '',
         headline: data.headline || '',
+        school: data.school || '',
         resume_url: data.resume_url || '',
         avatar_url: data.avatar_url || '',
         linkedin: data.linkedin || '',
@@ -284,10 +286,10 @@ export default function CandidateProfile() {
         {/* Avatar */}
         <div className="flex justify-center relative z-10">
           {previewUrl ? (
-            <img src={previewUrl} alt="Avatar" className="w-32 h-32 rounded-3xl border-4 border-green-400 shadow-lg shadow-green-400/50 object-cover"/>
+            <img src={previewUrl} alt="Avatar" className="w-48 h-48 rounded-3xl border-4 border-green-400 shadow-lg shadow-green-400/50 object-cover"/>
           ) : (
-            <div className="w-32 h-32 border-4 border-green-400 rounded-3xl flex items-center justify-center bg-green-400/10">
-              <span className="text-sm text-green-300">NO IMG</span>
+            <div className="w-48 h-48 border-4 border-green-400 rounded-3xl flex items-center justify-center bg-green-400/10">
+              <span className="text-lg text-green-300">NO IMG</span>
             </div>
           )}
         </div>

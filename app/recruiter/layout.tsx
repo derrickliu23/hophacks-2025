@@ -57,8 +57,6 @@ export default function RecruiterLayout({
     { id: 'jobs', label: 'Job Postings', path: '/recruiter/jobs' },
     { id: 'candidates', label: 'Candidates', path: '/recruiter/candidates' },
     { id: 'talent-communities', label: 'Talent Communities', path: '/recruiter/talent-communities' },
-    { id: 'company', label: 'Company', path: '/recruiter/company' },
-    { id: 'analytics', label: 'Analytics', path: '/recruiter/analytics' },
     { id: 'messages', label: 'Messages', path: '/recruiter/messages' }
   ]
 
