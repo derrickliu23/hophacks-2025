@@ -52,14 +52,11 @@ export default function CandidateLayout({
   }
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠', path: '/candidate' },
-    { id: 'profile', label: 'Profile', icon: '👤', path: '/candidate/profile' },
-    { id: 'jobs', label: 'Job Search', icon: '🔍', path: '/candidate/jobs' },
-    { id: 'applications', label: 'Applications', icon: '📋', path: '/candidate/applications' },
-    { id: 'exams', label: 'Coding Exams', icon: '💻', path: '/candidate/exams' },
-    { id: 'resume', label: 'Resume', icon: '📄', path: '/candidate/resume' },
-    { id: 'saved', label: 'Saved Jobs', icon: '⭐', path: '/candidate/saved' },
-    { id: 'messages', label: 'Messages', icon: '💬', path: '/candidate/messages' }
+    { id: 'dashboard', label: 'Dashboard', path: '/candidate' },
+    { id: 'profile', label: 'Profile', path: '/candidate/profile' },
+    { id: 'jobs', label: 'Job Search', path: '/candidate/jobs' },
+    { id: 'applications', label: 'Applications', path: '/candidate/applications' },
+    { id: 'exams', label: 'Coding Exams', path: '/candidate/exams' }
   ]
 
   const isActive = (path: string) => {
@@ -133,7 +130,6 @@ export default function CandidateLayout({
                         : 'text-gray-300 hover:text-white hover:bg-white/10 border-transparent hover:border-white/20 backdrop-blur-sm'
                     }`}
                   >
-                    <span className="mr-1">{tab.icon}</span>
                     {tab.label}
                   </button>
                 ))}

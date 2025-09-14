@@ -20,6 +20,8 @@ export default function CandidateProfile() {
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [selectedResumeFile, setSelectedResumeFile] = useState<File | null>(null);
+  const [uploadingResume, setUploadingResume] = useState(false);
 
   const supabase = createClient();
   const router = useRouter();
@@ -99,6 +101,26 @@ export default function CandidateProfile() {
     reader.readAsDataURL(file);
   };
 
+  const handleResumeFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type (PDF, DOC, DOCX)
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please upload a PDF, DOC, or DOCX file');
+      return;
+    }
+    
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+    
+    setSelectedResumeFile(file);
+  };
+
   const uploadProfilePicture = async (): Promise<string | null> => {
     if (!selectedFile) return null;
     setUploading(true);
@@ -130,6 +152,37 @@ export default function CandidateProfile() {
     }
   };
 
+  const uploadResume = async (): Promise<string | null> => {
+    if (!selectedResumeFile) return null;
+    setUploadingResume(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const fileExt = selectedResumeFile.name.split('.').pop();
+      const fileName = `${user.id}/resume-${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('user_data')
+        .upload(fileName, selectedResumeFile, { cacheControl: '3600', upsert: false });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user_data')
+        .getPublicUrl(data.path);
+
+      return publicUrl;
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading resume: ' + (err as Error).message);
+      return null;
+    } finally {
+      setUploadingResume(false);
+    }
+  };
+
   const updateProfile = async () => {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
@@ -137,13 +190,23 @@ export default function CandidateProfile() {
 
     try {
       let avatarUrl = profile.avatar_url;
+      let resumeUrl = profile.resume_url;
+
+      // Upload profile picture if selected
       if (selectedFile) {
         const uploadedUrl = await uploadProfilePicture();
         if (uploadedUrl) avatarUrl = uploadedUrl;
         else { setSaving(false); return; }
       }
 
-      const updates = { ...profile, avatar_url: avatarUrl };
+      // Upload resume if selected
+      if (selectedResumeFile) {
+        const uploadedResumeUrl = await uploadResume();
+        if (uploadedResumeUrl) resumeUrl = uploadedResumeUrl;
+        else { setSaving(false); return; }
+      }
+
+      const updates = { ...profile, avatar_url: avatarUrl, resume_url: resumeUrl };
 
       const { error } = await supabase
         .from('user_profiles')
@@ -151,7 +214,12 @@ export default function CandidateProfile() {
         .eq('id', user.id);
 
       if (error) alert('Error updating profile: ' + error.message);
-      else { setProfile(prev => ({ ...prev, avatar_url: avatarUrl })); setSelectedFile(null); alert('Profile updated!'); }
+      else { 
+        setProfile(prev => ({ ...prev, avatar_url: avatarUrl, resume_url: resumeUrl })); 
+        setSelectedFile(null); 
+        setSelectedResumeFile(null);
+        alert('Profile updated!'); 
+      }
 
     } catch (err) { console.error(err); alert('Error saving profile: ' + (err as Error).message); }
 
@@ -200,7 +268,7 @@ export default function CandidateProfile() {
           PASSPORT
         </h1>
         <p className="text-gray-300 text-2xl font-light drop-shadow-sm">
-          Assemble your professional Pokémon card
+          Assemble your professional passport
         </p>
       </motion.div>
 
@@ -224,18 +292,52 @@ export default function CandidateProfile() {
           )}
         </div>
 
-        {/* File Upload */}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="text-sm text-green-300 file:bg-green-900/50 file:border file:border-green-400 file:text-green-400 file:px-3 file:py-2 file:rounded font-mono"
-        />
+        {/* Profile Picture Upload */}
+        <div className="w-full">
+          <label className="block text-xs text-green-300 mb-2">PROFILE PICTURE</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="w-full text-sm text-green-300 file:bg-green-900/50 file:border file:border-green-400 file:text-green-400 file:px-3 file:py-2 file:rounded font-mono"
+          />
+        </div>
+
+        {/* Resume Upload */}
+        <div className="w-full">
+          <label className="block text-xs text-green-300 mb-2">RESUME UPLOAD</label>
+          <div className="space-y-2">
+            {profile.resume_url && (
+              <div className="flex items-center justify-between p-2 bg-green-900/20 border border-green-400/30 rounded">
+                <span className="text-xs text-green-300">Current: {profile.resume_url.split('/').pop()}</span>
+                <a 
+                  href={profile.resume_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-300 underline"
+                >
+                  View
+                </a>
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={handleResumeFileSelect}
+              className="w-full text-sm text-green-300 file:bg-green-900/50 file:border file:border-green-400 file:text-green-400 file:px-3 file:py-2 file:rounded font-mono"
+            />
+            {selectedResumeFile && (
+              <div className="text-xs text-green-400">
+                Selected: {selectedResumeFile.name} ({(selectedResumeFile.size / 1024 / 1024).toFixed(2)} MB)
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Profile Fields */}
         <div className="grid grid-cols-2 gap-4 w-full">
           {Object.entries(profile).map(([key, value]) => {
-            if (key === 'avatar_url') return null;
+            if (key === 'avatar_url' || key === 'resume_url') return null;
             const label = key.replace("_"," ").toUpperCase();
             return (
               <div key={key} className="flex flex-col p-3 border-2 border-green-400/30 rounded-xl bg-black/50">
@@ -253,10 +355,10 @@ export default function CandidateProfile() {
 
         <button
           type="submit"
-          disabled={saving || uploading}
+          disabled={saving || uploading || uploadingResume}
           className="mt-4 w-full px-6 py-3 border-2 border-green-400 hover:bg-green-900/50 disabled:opacity-50 disabled:cursor-not-allowed text-green-400 font-bold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-green-400/25"
         >
-          {uploading ? './uploading-image...' : saving ? './updating-profile...' : './update-profile --save'}
+          {uploading ? './uploading-image...' : uploadingResume ? './uploading-resume...' : saving ? './updating-profile...' : './update-profile --save'}
         </button>
       </motion.form>
     </motion.div>
