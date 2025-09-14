@@ -70,49 +70,50 @@ export default function RecruiterLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-xl text-gray-400">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with Branding, Tabs, and Sign Out */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <header className="backdrop-blur-xl bg-black/30 border-b border-white/20 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* EleetCode Branding */}
+            {/* Branding */}
             <div className="flex items-center">
               <Image src="/final_logo.png" alt="EleetCode Logo" width={35} height={35} priority className="mr-3" />
-              <h1 className="text-2xl font-bold text-blue-600">EleetCode</h1>
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+                EleetCode
+              </h1>
               <span className="ml-3 text-gray-400">|</span>
-              <span className="ml-3 text-gray-600">Recruiter Dashboard</span>
+              <span className="ml-3 text-gray-300">Recruiter Dashboard</span>
             </div>
 
-            {/* Tab Navigation and Sign Out */}
-            <div className="flex items-center space-x-6">
-              {/* Tabs */}
-              <nav className="flex space-x-4">
-                {tabs.map((tab) => (
+            {/* Tabs and Sign Out */}
+            <div className="flex items-center space-x-4">
+              <nav className="flex space-x-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+                {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => router.push(tab.path)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive(tab.path)
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`px-4 py-2 rounded-2xl font-medium whitespace-nowrap transition-all duration-300
+                      ${
+                        isActive(tab.path)
+                          ? 'bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 text-white shadow-lg'
+                          : 'bg-black/20 text-gray-300 hover:bg-black/40 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]'
+                      }`}
                   >
                     {tab.label}
                   </button>
                 ))}
               </nav>
 
-              {/* Sign Out Button */}
               <button
                 onClick={signOut}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                className="bg-gradient-to-r from-red-500 to-red-700 text-white px-4 py-2 rounded-xl hover:brightness-125 transition-all"
               >
                 Sign Out
               </button>
@@ -123,7 +124,9 @@ export default function RecruiterLayout({
 
       {/* Page Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+        <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-6">
+          {children}
+        </div>
       </main>
     </div>
   )
