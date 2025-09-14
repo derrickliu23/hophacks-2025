@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 interface StatData {
@@ -40,11 +40,13 @@ const AnimatedStatBar = ({ stat, delay = 0 }: { stat: StatData; delay?: number }
           transition={{ duration: 1, delay: delay / 1000, ease: "easeOut" }}
           className={`h-full rounded-full ${stat.color} shadow-md`}
           style={{
-            boxShadow: `0 0 15px ${stat.color.includes('blue') ? '#3b82f6' : 
-                                 stat.color.includes('purple') ? '#8b5cf6' : 
-                                 stat.color.includes('green') ? '#10b981' : 
-                                 stat.color.includes('yellow') ? '#f59e0b' : 
-                                 '#ef4444'}33`
+            boxShadow: `0 0 15px ${
+              stat.color.includes('blue') ? '#3b82f6' :
+              stat.color.includes('purple') ? '#8b5cf6' :
+              stat.color.includes('green') ? '#10b981' :
+              stat.color.includes('yellow') ? '#f59e0b' :
+              '#ef4444'
+            }33`
           }}
         />
       </div>
@@ -54,19 +56,6 @@ const AnimatedStatBar = ({ stat, delay = 0 }: { stat: StatData; delay?: number }
 
 export default function CandidateApplications() {
   const cardsData: CardData[] = [
-    {
-      title: "Performance Overview",
-      subtitle: "Comprehensive Skill Assessment",
-      gradient: "from-blue-600 via-purple-600 to-pink-600",
-      icon: "🎯",
-      stats: [
-        { name: "DSA", value: 87, maxValue: 100, color: "bg-gradient-to-r from-blue-500 to-cyan-500" },
-        { name: "Machine Learning", value: 92, maxValue: 100, color: "bg-gradient-to-r from-purple-500 to-pink-500" },
-        { name: "Probability", value: 78, maxValue: 100, color: "bg-gradient-to-r from-green-500 to-emerald-500" },
-        { name: "SQL", value: 95, maxValue: 100, color: "bg-gradient-to-r from-yellow-500 to-orange-500" },
-        { name: "Numerical Reasoning", value: 89, maxValue: 100, color: "bg-gradient-to-r from-red-500 to-rose-500" }
-      ]
-    },
     {
       title: "Data Structures & Algorithms",
       subtitle: "Computational Problem Solving Mastery",
@@ -134,100 +123,136 @@ export default function CandidateApplications() {
     }
   ]
 
-  const [currentCard, setCurrentCard] = useState(0)
-  const [dragOffset, setDragOffset] = useState(0)
+  // refs + pointer drag state for scroll-to-drag behavior
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const startScrollLeft = useRef(0)
 
-  const handleDragEnd = (event: any, info: any) => {
-    const threshold = 100
-    if (info.offset.x < -threshold) {
-      setCurrentCard((prev) => (prev + 1) % cardsData.length)
-    } else if (info.offset.x > threshold) {
-      setCurrentCard((prev) => (prev - 1 + cardsData.length) % cardsData.length)
+  useEffect(() => {
+    const container = scrollRef.current
+    if (!container) return
+
+    const onPointerDown = (e: PointerEvent) => {
+      isDragging.current = true
+      startX.current = e.clientX
+      startScrollLeft.current = container.scrollLeft
+      container.setPointerCapture?.((e as any).pointerId)
+      container.classList.add('cursor-grabbing', 'select-none')
     }
-    setDragOffset(0)
-  }
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!isDragging.current) return
+      const x = e.clientX
+      const walk = x - startX.current
+      container.scrollLeft = startScrollLeft.current - walk
+    }
+
+    const endDrag = (e: PointerEvent) => {
+      isDragging.current = false
+      try { container.releasePointerCapture?.((e as any).pointerId) } catch {}
+      container.classList.remove('cursor-grabbing', 'select-none')
+    }
+
+    container.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', endDrag)
+    window.addEventListener('pointercancel', endDrag)
+    container.addEventListener('pointerleave', endDrag)
+
+    return () => {
+      container.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', endDrag)
+      window.removeEventListener('pointercancel', endDrag)
+      container.removeEventListener('pointerleave', endDrag)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen relative flex flex-col items-center justify-center bg-black overflow-hidden p-6">
-      {/* Background shimmer */}
-      <div className="absolute inset-0">
+      {/* Background shimmer (behind everything) */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
         {[...Array(40)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-white/20"
-            initial={{ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, opacity: Math.random() * 0.5 }}
-            animate={{ y: -50, opacity: 0 }}
+            className="absolute w-1 h-1 rounded-full bg-white/10"
+            initial={{ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, opacity: Math.random() * 0.25 }}
+            animate={{ y: -60, opacity: 0 }}
             transition={{ duration: Math.random() * 12 + 8, repeat: Infinity, ease: "linear" }}
           />
         ))}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
       </div>
 
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="z-10 text-center mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: -28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="z-10 text-center mb-8"
+      >
         <h1 className="text-4xl md:text-6xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
           Skill Assessment
         </h1>
         <p className="text-lg md:text-xl text-gray-300 font-light">Elite Performance Analytics</p>
       </motion.div>
 
-      {/* Carousel */}
-      <div className="relative w-full max-w-3xl flex justify-center items-center perspective-1000 z-10">
-        {cardsData.map((card, index) => {
-          const offset = index - currentCard
-          const isVisible = Math.abs(offset) <= 1
-          const scale = offset === 0 ? 1 : 0.8
-          const rotateY = offset * 20
-          const x = offset * 250 + dragOffset
-
-          return (
-            <motion.div
-              key={index}
-              className={`absolute w-72 md:w-80 h-[650px] cursor-grab`}
-              style={{ zIndex: -Math.abs(offset) }}
-              animate={{ x, rotateY, scale }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              drag={offset === 0 ? "x" : false}
-              dragConstraints={{ left: 0, right: 0 }}
-              onDrag={(e, info) => setDragOffset(info.offset.x)}
-              onDragEnd={handleDragEnd}
-            >
-              {/* Card shards */}
+      {/* Horizontal scroll row — native scrolling with snap */}
+      <div
+        ref={scrollRef}
+        className="z-10 w-full max-w-6xl px-6 py-8 overflow-x-auto flex gap-6 snap-x snap-mandatory scroll-smooth"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        {cardsData.map((card, index) => (
+          <div
+            key={index}
+            className="relative snap-center flex-shrink-0 w-72 md:w-80 h-[650px] rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden"
+          >
+            {/* shards - purely decorative panes, behind content */}
+            <div className="absolute inset-0 z-0">
               {[...Array(6)].map((_, i) => (
-                <motion.div
+                <div
                   key={i}
-                  className={`absolute inset-0 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl`}
-                  style={{ clipPath: `polygon(${i*16}% 0%, ${(i+1)*16}% 0%, ${(i+1)*16}% 100%, ${i*16}% 100%)` }}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl"
+                  style={{ clipPath: `polygon(${i * 16}% 0%, ${(i + 1) * 16}% 0%, ${(i + 1) * 16}% 100%, ${i * 16}% 100%)`, opacity: 0.06 }}
                 />
               ))}
+              {/* holographic glow (low opacity, behind) */}
+              <div className={`absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t ${card.gradient} opacity-20 rounded-b-3xl blur-3xl`} />
+            </div>
 
-              {/* Main card content */}
-              <div className="relative w-full h-full flex flex-col justify-between p-6 z-10">
-                <div className="relative text-center mt-4 z-10">
-                  <div className="text-6xl mb-2">{card.icon}</div>
-                  <h2 className={`text-3xl md:text-4xl font-bold mb-1 bg-clip-text text-transparent bg-gradient-to-r ${card.gradient}`}>
-                    {card.title}
-                  </h2>
-                  <p className="text-gray-400 text-sm md:text-base">{card.subtitle}</p>
-                </div>
-
-                <div className="mt-4 flex-1 flex flex-col justify-center space-y-3 z-10">
-                  {card.stats.map((stat, index) => (
-                    <AnimatedStatBar key={index} stat={stat} delay={index * 150} />
-                  ))}
-                </div>
-
-                <div className={`absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t ${card.gradient} opacity-30 rounded-b-3xl blur-3xl`} />
+            {/* Card content (z-10 so it sits above shards) */}
+            <div className="relative z-10 w-full h-full flex flex-col justify-between p-6">
+              <div className="text-center mt-4">
+                <div className="text-6xl mb-2">{card.icon}</div>
+                <h2 className={`text-3xl md:text-4xl font-bold mb-1 bg-clip-text text-transparent bg-gradient-to-r ${card.gradient}`}>
+                  {card.title}
+                </h2>
+                <p className="text-gray-400 text-sm md:text-base">{card.subtitle}</p>
               </div>
-            </motion.div>
-          )
-        })}
+
+              <div className="mt-4 flex-1 flex flex-col justify-center space-y-3">
+                {card.stats.map((stat, i) => (
+                  <AnimatedStatBar key={i} stat={stat} delay={i * 150} />
+                ))}
+              </div>
+
+              {/* visible holographic strip (above shards) */}
+              <div className={`absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t ${card.gradient} opacity-30 rounded-b-3xl blur-2xl`} />
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Back */}
-      <div className="mt-6 z-10">
+      {/* Back button */}
+      <div className="mt-8 z-10">
         <Link href="/candidate">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-black/60 backdrop-blur-sm border border-gray-500/20 text-gray-300 font-medium rounded-lg hover:border-white/40 hover:text-white transition-all duration-300">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-black/60 backdrop-blur-sm border border-gray-500/20 text-gray-300 font-medium rounded-lg hover:border-white/40 hover:text-white transition-all duration-300"
+          >
             ← Back to Dashboard
           </motion.button>
         </Link>
@@ -235,5 +260,3 @@ export default function CandidateApplications() {
     </div>
   )
 }
-
-
