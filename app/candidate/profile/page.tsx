@@ -38,14 +38,14 @@ export default function CandidateProfile() {
       rotate: custom.rotate,
       scale: 0.5
     }),
-    visible: { 
+    visible: (custom: {x:number, y:number, rotate:number}) => ({
       opacity: 1,
-      x: 0,
-      y: 0,
+      x: custom.x,
+      y: custom.y,
       rotate: 0,
       scale: 1,
       transition: { type: "spring", stiffness: 120, damping: 20 }
-    }
+    })
   };
 
   const cardVariants: Variants = {
@@ -168,12 +168,13 @@ export default function CandidateProfile() {
   );
 
   const shards = [
-    { x:-200, y:-100, rotate:-30 },
-    { x:180, y:-120, rotate:20 },
-    { x:-150, y:130, rotate:10 },
-    { x:150, y:100, rotate:-15 },
-    { x:0, y:-180, rotate:45 },
-    { x:0, y:180, rotate:-45 }
+    { x:-100, y:100, rotate:-15 },   // Lower - top left
+    { x:100, y:100, rotate:15 },     // Lower - top right  
+    { x:-80, y:220, rotate:10 },     // Lower - bottom left
+    { x:80, y:220, rotate:-10 },     // Lower - bottom right
+    { x:0, y:80, rotate:0 },         // Lower - center top
+    { x:0, y:260, rotate:0 },        // Lower - center bottom
+    { x:0, y:300, rotate:0 }         // Lower - main center glow behind card
   ];
 
   return (
@@ -181,7 +182,7 @@ export default function CandidateProfile() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="relative p-8 min-h-screen bg-black text-green-400 font-mono flex flex-col items-center overflow-hidden"
+      className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 p-8 min-h-screen bg-black text-green-400 font-mono flex flex-col items-center overflow-hidden"
     >
       {/* Background Shards Spread Across */}
       {shards.map((s, i) => (
@@ -189,14 +190,14 @@ export default function CandidateProfile() {
           key={i}
           custom={s}
           variants={shardVariants}
-          className="absolute w-48 h-48 bg-gradient-to-r from-green-500 to-blue-500/50 rounded-xl opacity-20 blur-3xl shadow-xl"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-gradient-to-r from-green-500 to-blue-500/50 rounded-full opacity-25 blur-3xl shadow-2xl"
         />
       ))}
 
       {/* Header */}
       <motion.div className="text-center z-10 mb-12">
         <h1 className="text-8xl md:text-9xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-blue-400 to-purple-500 drop-shadow-lg">
-          ELITE CARD
+          PASSPORT
         </h1>
         <p className="text-gray-300 text-2xl font-light drop-shadow-sm">
           Assemble your professional Pokémon card

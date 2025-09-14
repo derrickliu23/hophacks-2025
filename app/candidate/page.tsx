@@ -1,7 +1,77 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+
+function TypewriterHeader() {
+  const phrases = ['Limits, Unbounded', 'Opportunities Await']
+  const [phraseIndex, setPhraseIndex] = useState(0)
+  const [text, setText] = useState('')
+  const [phase, setPhase] = useState<'typing' | 'deleting' | 'done'>('typing')
+  const [showCursor, setShowCursor] = useState(true)
+
+  const TYPING_MS = 120
+  const DELETING_MS = 70
+  const PAUSE_AFTER_TYPING_MS = 3000
+  const PAUSE_BEFORE_NEXT_MS = 1000
+
+  useEffect(() => {
+    if (phase === 'done') {
+      setShowCursor(false)
+      return
+    }
+    const iv = setInterval(() => setShowCursor(v => !v), 500)
+    return () => clearInterval(iv)
+  }, [phase])
+
+  useEffect(() => {
+    if (phase === 'done') return
+
+    const current = phrases[phraseIndex]
+    let timeout: any
+
+    if (phase === 'typing') {
+      if (text === current) {
+        if (phraseIndex === phrases.length - 1) {
+          // Final phrase reached: stop the loop and keep the text
+          setPhase('done')
+        } else {
+          timeout = setTimeout(() => setPhase('deleting'), PAUSE_AFTER_TYPING_MS)
+        }
+      } else {
+        timeout = setTimeout(() => {
+          setText(current.slice(0, text.length + 1))
+        }, TYPING_MS)
+      }
+    } else if (phase === 'deleting') {
+      if (text === '') {
+        timeout = setTimeout(() => {
+          setPhraseIndex(Math.min(phraseIndex + 1, phrases.length - 1))
+          setPhase('typing')
+        }, PAUSE_BEFORE_NEXT_MS)
+      } else {
+        timeout = setTimeout(() => {
+          setText(current.slice(0, Math.max(0, text.length - 1)))
+        }, DELETING_MS)
+      }
+    }
+
+    return () => clearTimeout(timeout)
+  }, [text, phase, phraseIndex])
+
+  return (
+    <span className="inline-flex items-baseline">
+      <span>{text}</span>
+      {phase !== 'done' && (
+        <span
+          className={`${showCursor ? 'opacity-100' : 'opacity-0'} ml-1 inline-block align-baseline w-[2px] h-[1em] bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500`}
+          aria-hidden="true"
+        />
+      )}
+    </span>
+  )
+}
 
 export default function CandidateDashboard() {
   const containerVariants = {
@@ -89,8 +159,8 @@ export default function CandidateDashboard() {
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-          Elite Dashboard
+        <h1 className="text-5xl md:text-7xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+          <TypewriterHeader />
         </h1>
         <p className="text-xl text-gray-300 font-light">
           Navigate your path to extraordinary opportunities

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 
@@ -110,6 +111,7 @@ export default function CandidateLayout({
           <div className="flex justify-between items-center h-16">
             {/* EleetCode Branding */}
             <div className="flex items-center">
+              <Image src="/final_logo.png" alt="EleetCode Logo" width={35} height={35} priority className="mr-3" />
               <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
                 EleetCode
               </h1>
