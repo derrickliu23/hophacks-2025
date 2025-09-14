@@ -21,28 +21,26 @@ interface CardData {
 
 const AnimatedStatBar = ({ stat, delay = 0 }: { stat: StatData; delay?: number }) => {
   const [isVisible, setIsVisible] = useState(false)
-
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), delay)
     return () => clearTimeout(timer)
   }, [delay])
 
   const percentage = (stat.value / stat.maxValue) * 100
-
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-gray-300 font-medium">{stat.name}</span>
+    <div className="mb-3">
+      <div className="flex justify-between text-sm font-medium text-gray-300 mb-1">
+        <span>{stat.name}</span>
         <span className="text-white font-bold">{stat.value}/{stat.maxValue}</span>
       </div>
-      <div className="h-3 bg-gray-800/50 rounded-full overflow-hidden backdrop-blur-sm">
+      <div className="h-3 bg-gray-800/40 rounded-full overflow-hidden backdrop-blur-sm">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: isVisible ? `${percentage}%` : 0 }}
-          transition={{ duration: 1.5, delay: delay / 1000, ease: "easeOut" }}
-          className={`h-full rounded-full ${stat.color} shadow-lg`}
+          transition={{ duration: 1, delay: delay / 1000, ease: "easeOut" }}
+          className={`h-full rounded-full ${stat.color} shadow-md`}
           style={{
-            boxShadow: `0 0 20px ${stat.color.includes('blue') ? '#3b82f6' : 
+            boxShadow: `0 0 15px ${stat.color.includes('blue') ? '#3b82f6' : 
                                  stat.color.includes('purple') ? '#8b5cf6' : 
                                  stat.color.includes('green') ? '#10b981' : 
                                  stat.color.includes('yellow') ? '#f59e0b' : 
@@ -55,9 +53,6 @@ const AnimatedStatBar = ({ stat, delay = 0 }: { stat: StatData; delay?: number }
 }
 
 export default function CandidateApplications() {
-  const [currentCard, setCurrentCard] = useState(0)
-  const [direction, setDirection] = useState(0)
-
   const cardsData: CardData[] = [
     {
       title: "Performance Overview",
@@ -65,10 +60,10 @@ export default function CandidateApplications() {
       gradient: "from-blue-600 via-purple-600 to-pink-600",
       icon: "🎯",
       stats: [
-        { name: "Data Structures & Algorithms", value: 87, maxValue: 100, color: "bg-gradient-to-r from-blue-500 to-cyan-500" },
+        { name: "DSA", value: 87, maxValue: 100, color: "bg-gradient-to-r from-blue-500 to-cyan-500" },
         { name: "Machine Learning", value: 92, maxValue: 100, color: "bg-gradient-to-r from-purple-500 to-pink-500" },
-        { name: "Probability & Statistics", value: 78, maxValue: 100, color: "bg-gradient-to-r from-green-500 to-emerald-500" },
-        { name: "SQL & Databases", value: 95, maxValue: 100, color: "bg-gradient-to-r from-yellow-500 to-orange-500" },
+        { name: "Probability", value: 78, maxValue: 100, color: "bg-gradient-to-r from-green-500 to-emerald-500" },
+        { name: "SQL", value: 95, maxValue: 100, color: "bg-gradient-to-r from-yellow-500 to-orange-500" },
         { name: "Numerical Reasoning", value: 89, maxValue: 100, color: "bg-gradient-to-r from-red-500 to-rose-500" }
       ]
     },
@@ -139,208 +134,106 @@ export default function CandidateApplications() {
     }
   ]
 
-  const nextCard = () => {
-    setDirection(1)
-    setCurrentCard((prev) => (prev + 1) % cardsData.length)
-  }
+  const [currentCard, setCurrentCard] = useState(0)
+  const [dragOffset, setDragOffset] = useState(0)
 
-  const prevCard = () => {
-    setDirection(-1)
-    setCurrentCard((prev) => (prev - 1 + cardsData.length) % cardsData.length)
-  }
-
-  const cardVariants = {
-    enter: (direction: number) => ({
-      rotateY: direction > 0 ? 90 : -90,
-      opacity: 0,
-      scale: 0.8
-    }),
-    center: {
-      rotateY: 0,
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.23, 1, 0.32, 1]
-      }
-    },
-    exit: (direction: number) => ({
-      rotateY: direction < 0 ? 90 : -90,
-      opacity: 0,
-      scale: 0.8,
-      transition: {
-        duration: 0.8,
-        ease: [0.23, 1, 0.32, 1]
-      }
-    })
+  const handleDragEnd = (event: any, info: any) => {
+    const threshold = 100
+    if (info.offset.x < -threshold) {
+      setCurrentCard((prev) => (prev + 1) % cardsData.length)
+    } else if (info.offset.x > threshold) {
+      setCurrentCard((prev) => (prev - 1 + cardsData.length) % cardsData.length)
+    }
+    setDragOffset(0)
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Hero Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2500&q=80')" }}
-      />
-      
-      {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-gray-900/90 to-black/95" />
-      <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/20 via-purple-900/20 to-pink-900/20" />
-      
-      {/* Animated Background Particles */}
+    <div className="min-h-screen relative flex flex-col items-center justify-center bg-black overflow-hidden p-6">
+      {/* Background shimmer */}
       <div className="absolute inset-0">
-        {[...Array(50)].map((_, i) => (
+        {[...Array(40)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full"
-            initial={{ 
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
-              opacity: Math.random() * 0.5
-            }}
-            animate={{
-              y: [null, -100],
-              opacity: [null, 0]
-            }}
-            transition={{
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
+            className="absolute w-1 h-1 rounded-full bg-white/20"
+            initial={{ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, opacity: Math.random() * 0.5 }}
+            animate={{ y: -50, opacity: 0 }}
+            transition={{ duration: Math.random() * 12 + 8, repeat: Infinity, ease: "linear" }}
           />
         ))}
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-            Skill Assessment
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 font-light">
-            Elite Performance Analytics
-          </p>
-        </motion.div>
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="z-10 text-center mb-6">
+        <h1 className="text-4xl md:text-6xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+          Skill Assessment
+        </h1>
+        <p className="text-lg md:text-xl text-gray-300 font-light">Elite Performance Analytics</p>
+      </motion.div>
 
-        {/* Card Container */}
-        <div className="relative w-full max-w-4xl h-[600px] flex items-center justify-center perspective-1000">
-          <AnimatePresence mode="wait" custom={direction}>
+      {/* Carousel */}
+      <div className="relative w-full max-w-3xl flex justify-center items-center perspective-1000 z-10">
+        {cardsData.map((card, index) => {
+          const offset = index - currentCard
+          const isVisible = Math.abs(offset) <= 1
+          const scale = offset === 0 ? 1 : 0.8
+          const rotateY = offset * 20
+          const x = offset * 250 + dragOffset
+
+          return (
             <motion.div
-              key={currentCard}
-              custom={direction}
-              variants={cardVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="absolute w-full max-w-3xl"
-              style={{ 
-                transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden'
-              }}
+              key={index}
+              className={`absolute w-72 md:w-80 h-[650px] cursor-grab`}
+              style={{ zIndex: -Math.abs(offset) }}
+              animate={{ x, rotateY, scale }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              drag={offset === 0 ? "x" : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              onDrag={(e, info) => setDragOffset(info.offset.x)}
+              onDragEnd={handleDragEnd}
             >
-              {/* Glassmorphic Card */}
-              <div className="relative bg-black/40 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl">
-                {/* Card Glow */}
-                <div className={`absolute inset-0 bg-gradient-to-r ${cardsData[currentCard].gradient} opacity-20 rounded-3xl blur-xl`} />
-                
-                {/* Card Header */}
-                <div className="relative text-center mb-8">
-                  <div className="text-6xl mb-4">{cardsData[currentCard].icon}</div>
-                  <h2 className={`text-3xl md:text-4xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r ${cardsData[currentCard].gradient}`}>
-                    {cardsData[currentCard].title}
+              {/* Card shards */}
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className={`absolute inset-0 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl`}
+                  style={{ clipPath: `polygon(${i*16}% 0%, ${(i+1)*16}% 0%, ${(i+1)*16}% 100%, ${i*16}% 100%)` }}
+                />
+              ))}
+
+              {/* Main card content */}
+              <div className="relative w-full h-full flex flex-col justify-between p-6 z-10">
+                <div className="relative text-center mt-4 z-10">
+                  <div className="text-6xl mb-2">{card.icon}</div>
+                  <h2 className={`text-3xl md:text-4xl font-bold mb-1 bg-clip-text text-transparent bg-gradient-to-r ${card.gradient}`}>
+                    {card.title}
                   </h2>
-                  <p className="text-gray-400 text-lg">
-                    {cardsData[currentCard].subtitle}
-                  </p>
+                  <p className="text-gray-400 text-sm md:text-base">{card.subtitle}</p>
                 </div>
 
-                {/* Stats */}
-                <div className="relative space-y-6">
-                  {cardsData[currentCard].stats.map((stat, index) => (
-                    <AnimatedStatBar 
-                      key={`${currentCard}-${stat.name}`} 
-                      stat={stat} 
-                      delay={index * 200} 
-                    />
+                <div className="mt-4 flex-1 flex flex-col justify-center space-y-3 z-10">
+                  {card.stats.map((stat, index) => (
+                    <AnimatedStatBar key={index} stat={stat} delay={index * 150} />
                   ))}
                 </div>
 
-                {/* Card Footer */}
-                <div className="relative text-center mt-8 pt-6 border-t border-white/10">
-                  <div className="flex justify-center space-x-4 text-gray-400">
-                    <span>Card {currentCard + 1} of {cardsData.length}</span>
-                    <span>•</span>
-                    <span>Premium Analytics</span>
-                  </div>
-                </div>
+                <div className={`absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t ${card.gradient} opacity-30 rounded-b-3xl blur-3xl`} />
               </div>
             </motion.div>
-          </AnimatePresence>
-        </div>
+          )
+        })}
+      </div>
 
-        {/* Navigation */}
-        <div className="flex items-center space-x-8 mt-8">
-          <motion.button
-            onClick={prevCard}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-blue-500/50 transition-all duration-300 border border-blue-500/30"
-          >
-            ← Previous
+      {/* Back */}
+      <div className="mt-6 z-10">
+        <Link href="/candidate">
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-black/60 backdrop-blur-sm border border-gray-500/20 text-gray-300 font-medium rounded-lg hover:border-white/40 hover:text-white transition-all duration-300">
+            ← Back to Dashboard
           </motion.button>
-
-          {/* Card Indicators */}
-          <div className="flex space-x-2">
-            {cardsData.map((_, index) => (
-              <motion.button
-                key={index}
-                onClick={() => {
-                  setDirection(index > currentCard ? 1 : -1)
-                  setCurrentCard(index)
-                }}
-                whileHover={{ scale: 1.2 }}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentCard 
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg shadow-blue-500/50' 
-                    : 'bg-gray-600 hover:bg-gray-500'
-                }`}
-              />
-            ))}
-          </div>
-
-          <motion.button
-            onClick={nextCard}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-purple-500/50 transition-all duration-300 border border-purple-500/30"
-          >
-            Next →
-          </motion.button>
-        </div>
-
-        {/* Back to Dashboard */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.5 }}
-          className="mt-12"
-        >
-          <Link href="/candidate">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-black/60 backdrop-blur-sm border border-gray-500/30 text-gray-300 font-medium rounded-xl hover:border-white/50 hover:text-white transition-all duration-300 shadow-lg"
-            >
-              ← Back to Dashboard
-            </motion.button>
-          </Link>
-        </motion.div>
+        </Link>
       </div>
     </div>
   )
 }
+
+
