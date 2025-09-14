@@ -20,7 +20,7 @@ export default function ExamPage({ params }: ExamPageProps) {
   )
   const [scores, setScores] = useState<number[]>(Array(exam?.questions.length || 0).fill(0))
   const [submitted, setSubmitted] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(exam?.duration * 60 || 0) // in seconds
+  const [timeLeft, setTimeLeft] = useState((exam?.duration ?? 60) * 60) // in seconds
 
   if (!exam) return <div className="text-white text-center py-12">Exam not found</div>
 
